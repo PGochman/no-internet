@@ -1,0 +1,18 @@
+.button{
+    padding: 6px 14px;
+    background-color: blue;
+    color: white;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+}
+
+.instrucciones{
+    font-size: large;
+    color: white;
+}

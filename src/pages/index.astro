@@ -1,5 +1,5 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import Juego from '../components/Juego.tsx';
 import Layout from '../layouts/Layout.astro';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
@@ -7,5 +7,16 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-	<Welcome />
+	<div class="juego">
+		<Juego client:only="react"/>
+	</div>
 </Layout>
+
+<style>
+	.juego{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
+</style>
