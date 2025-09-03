@@ -14,13 +14,16 @@ export default function DinoGame() {
     y: number;
     width: number;
     height: number;
-    type: "cactus";
+    type: "maple" | "microondas" | "sillon" | "tv";
   };
 
   const imagesRef = useRef<{
-    dino: HTMLImageElement;
-    cactus: HTMLImageElement;
-    ground: HTMLImageElement;
+    huevo: HTMLImageElement;
+    maple: HTMLImageElement;
+    fondo: HTMLImageElement;
+    microondas: HTMLImageElement;
+    sillon: HTMLImageElement;
+    tv: HTMLImageElement;
   } | null>(null);
 
   const stateRef = useRef<{
@@ -29,7 +32,7 @@ export default function DinoGame() {
     speed: number;
     groundTop: number;
     groundX: number;
-    dino: {
+    huevo: {
       x: number;
       y: number;
       width: number;
@@ -40,32 +43,34 @@ export default function DinoGame() {
     };
     obstacles: Obstacle[];
     score: number;
+    lastSpeedUp: number;
   }>({
     ready: false,
     running: true,
     speed: 5,
-    groundTop: 260, // dibujamos el suelo desde 260 hacia abajo (alto 40)
+    groundTop: 310, // dibujamos el suelo desde 260 hacia abajo (alto 40)
     groundX: 0,
-    dino: {
+    huevo: {
       x: 50,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: 210, // 260 - 50
-      width: 50,
-      height: 50,
+      y: 260, // 260 - 50
+      width: 65,
+      height: 80,
       vy: 0,
-      gravity: 1,
+      gravity: 0.6,
       jumpForce: -15,
     },
     obstacles: [
       {
         x: isMobile ? 200 : 600,
-        y: 210,
-        width: 40,
-        height: 50,
-        type: "cactus",
-      }, // apoyado en el suelo: 260-50=210
+        y: 250,
+        width: 70,
+        height: 70,
+        type: "maple",
+      },
     ],
     score: 0,
+    lastSpeedUp: 0,
   });
 
   // Utilidad: AABB
@@ -74,10 +79,10 @@ export default function DinoGame() {
     b: { x: number; y: number; width: number; height: number }
   ) {
     return (
-      a.x < b.x + b.width &&
-      a.x + a.width > b.x &&
-      a.y < b.y + b.height &&
-      a.y + a.height > b.y
+      a.x < b.x + b.width - 10 &&
+      a.x + a.width - 10 > b.x &&
+      a.y < b.y + b.height - 10 &&
+      a.y + a.height - 10 > b.y
     );
   }
 
@@ -85,9 +90,9 @@ export default function DinoGame() {
     const s = stateRef.current;
     if (!s.running) return;
     // Solo salta si está en el suelo (tolerancia pequeña)
-    const onGround = Math.abs(s.dino.y - (s.groundTop - s.dino.height)) < 0.5;
+    const onGround = Math.abs(s.huevo.y - (s.groundTop - s.huevo.height)) < 0.5;
     if (onGround) {
-      s.dino.vy = s.dino.jumpForce;
+      s.huevo.vy = s.huevo.jumpForce;
     }
   }
 
@@ -97,11 +102,11 @@ export default function DinoGame() {
     setRunningUI(true);
     s.speed = 5;
     s.groundX = 0;
-    s.dino.x = 50;
-    s.dino.y = s.groundTop - s.dino.height; // 210
-    s.dino.vy = 0;
+    s.huevo.x = 50;
+    s.huevo.y = s.groundTop - s.huevo.height; // 210
+    s.huevo.vy = 0;
     s.obstacles = [
-      { x: 600, y: s.groundTop - 50, width: 40, height: 50, type: "cactus" },
+      { x: 600, y: s.groundTop - 50, width: 70, height: 70, type: "maple" },
     ];
     s.score = 0;
   }
@@ -110,34 +115,56 @@ export default function DinoGame() {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     canvas.width = isMobile ? window.innerWidth : 800;
-    canvas.height = 300;
+    canvas.height = 400;
 
     // Cargar imágenes y arrancar cuando estén listas
-    const dinoImg = new Image();
-    const cactusImg = new Image();
-    const groundImg = new Image();
+    const huevoImg = new Image();
+    const mapleImg = new Image();
+    const microondasImg = new Image();
+    const sillonImg = new Image();
+    const tvImg = new Image();
+    const fondoImg = new Image();
 
     let loaded = 0;
     const onLoad = () => {
       loaded += 1;
       if (loaded === 3) {
         imagesRef.current = {
-          dino: dinoImg,
-          cactus: cactusImg,
-          ground: groundImg,
+          huevo: huevoImg,
+          maple: mapleImg,
+          fondo: fondoImg,
+          tv: tvImg,
+          microondas: microondasImg,
+          sillon: sillonImg,
         };
         stateRef.current.ready = true;
         loop();
       }
     };
 
-    dinoImg.onload = onLoad;
-    cactusImg.onload = onLoad;
-    groundImg.onload = onLoad;
+    huevoImg.onload = onLoad;
+    mapleImg.onload = onLoad;
+    microondasImg.onload = onLoad;
+    sillonImg.onload = onLoad;
+    tvImg.onload = onLoad;
+    fondoImg.onload = onLoad;
 
-    dinoImg.src = "/sprites/dino.png";
-    cactusImg.src = "/sprites/cactus.png";
-    groundImg.src = "/sprites/ground.jpg";
+    // Alternar entre dos imágenes de huevo cada 500ms
+    let huevoToggle = true;
+    huevoImg.src = "/sprites/huevo1.png";
+    setInterval(() => {
+      if (runningUI) {
+        huevoImg.src = huevoToggle
+          ? "/sprites/huevo2.png"
+          : "/sprites/huevo1.png";
+        huevoToggle = !huevoToggle;
+      }
+    }, 500);
+    mapleImg.src = "/sprites/maple.png";
+    microondasImg.src = "/sprites/microondas.png";
+    sillonImg.src = "/sprites/sillon.png";
+    tvImg.src = "/sprites/tv.png";
+    fondoImg.src = "/sprites/fondo.png";
 
     // Controles: teclado y táctil/click
     const onKey = (e: KeyboardEvent) => {
@@ -155,13 +182,13 @@ export default function DinoGame() {
       if (!s.running || !s.ready) return;
 
       // Física del dino
-      s.dino.y += s.dino.vy;
-      s.dino.vy += s.dino.gravity;
+      s.huevo.y += s.huevo.vy;
+      s.huevo.vy += s.huevo.gravity;
       // Limitar al suelo
-      const groundY = s.groundTop - s.dino.height; // 210
-      if (s.dino.y > groundY) {
-        s.dino.y = groundY;
-        s.dino.vy = 0;
+      const groundY = s.groundTop - s.huevo.height; // 210
+      if (s.huevo.y > groundY) {
+        s.huevo.y = groundY;
+        s.huevo.vy = 0;
       }
 
       // Mover fondo
@@ -172,20 +199,50 @@ export default function DinoGame() {
       for (const obs of s.obstacles) {
         obs.x -= s.speed;
         if (obs.x + obs.width < 0) {
-          // Reaparecer a la derecha con un hueco aleatorio
-          obs.x = canvas.width + 200 + Math.random() * 300;
+          const types: Obstacle["type"][] = [
+            "maple",
+            "microondas",
+            "sillon",
+            "tv",
+          ];
+          const newType = types[Math.floor(Math.random() * types.length)];
+          obs.type = newType;
+
+          // cambiar ancho según el tipo
+          if (newType === "maple") {
+            obs.width = 70;
+            obs.height = 70;
+            obs.y = 250
+          }
+          if (newType === "microondas") {
+            obs.width = 80;
+            obs.height = 50;
+            obs.y = 270
+          }
+          if (newType === "sillon") {
+            obs.width = 120;
+            obs.height = 70;
+            obs.y = 250
+          }
+          if (newType === "tv") {
+            obs.width = 80;
+            obs.height = 65;
+            obs.y = 255
+          }
+
+          obs.x = canvas.width + 100 + Math.random() * 400;
         }
       }
 
       // Colisiones (hitbox del cactus ligeramente más chico)
       for (const obs of s.obstacles) {
         const hitbox = {
-          x: obs.x + 5,
+          x: obs.x,
           y: obs.y,
-          width: obs.width - 10,
+          width: obs.width - 20,
           height: obs.height,
         };
-        if (collide(s.dino, hitbox)) {
+        if (collide(s.huevo, hitbox)) {
           s.running = false;
           setRunningUI(false);
           break;
@@ -194,7 +251,11 @@ export default function DinoGame() {
 
       // Aumentar score / dificultad leve
       s.score += 0.5;
-      if (s.score % 300 === 0) s.speed = Math.min(s.speed + 0.5, 12);
+      if (s.score - s.lastSpeedUp >= 100) {
+        s.speed = Math.min(s.speed + 0.5, 20);
+        s.lastSpeedUp = s.score; // guardar el último momento de aceleración
+      }
+      console.log(s.speed)
     }
 
     function draw() {
@@ -203,28 +264,37 @@ export default function DinoGame() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Suelo (dos dibujos para loop infinito)
-      ctx.drawImage(
-        imgs.ground,
-        s.groundX,
-        s.groundTop,
-        canvas.width,
-        canvas.height - s.groundTop
-      );
-      ctx.drawImage(
-        imgs.ground,
-        s.groundX + canvas.width,
-        s.groundTop,
-        canvas.width,
-        canvas.height - s.groundTop
-      );
+      // Fondo completo (rellena todo el canvas)
+      ctx.drawImage(imgs.fondo, 0, 0, canvas.width, canvas.height);
 
-      // Dino
-      ctx.drawImage(imgs.dino, s.dino.x, s.dino.y, s.dino.width, s.dino.height);
+      // Huevo
+      ctx.drawImage(
+        imgs.huevo,
+        s.huevo.x,
+        s.huevo.y,
+        s.huevo.width,
+        s.huevo.height
+      );
 
       // Obstáculos
       for (const obs of s.obstacles) {
-        const img = imgs.cactus; // único tipo por ahora
+        let img: HTMLImageElement;
+        switch (obs.type) {
+          case "maple":
+            img = imgs.maple;
+            break;
+          case "microondas":
+            img = imgs.microondas;
+            break;
+          case "sillon":
+            img = imgs.sillon;
+            break;
+          case "tv":
+            img = imgs.tv;
+            break;
+          default:
+            img = imgs.maple;
+        }
         ctx.drawImage(img, obs.x, obs.y, obs.width, obs.height);
       }
 
@@ -268,21 +338,12 @@ export default function DinoGame() {
           para saltar
         </p>
       ) : (
-        // <button
-        //   style={{ width: canvasRef.current?.width || 802 }}
-        //   className={style.button}
-        //   onClick={() => (stateRef.current.running ? jump() : null)}
-        // >
-        //   Saltar
-        // </button>
         <button
           style={{ display: "none" }}
           onClick={() => {
             stateRef.current.running = false; /* ya está en false */
             stateRef.current.ready ? undefined : undefined;
-            setRunningUI(
-              false
-            ); /* noop */ /* reinicio real */ /* preferimos restart() para limpiar todo */
+            setRunningUI(false);
           }}
         />
       )}
@@ -290,8 +351,8 @@ export default function DinoGame() {
         <button
           style={{ display: "none" }}
           onClick={() => {
-            /* reiniciar estado del juego */ const s = stateRef.current;
-            s.running = false; /* asegurar */
+            const s = stateRef.current;
+            s.running = false;
           }}
         />
       )}
@@ -315,19 +376,19 @@ export default function DinoGame() {
               setRunningUI(true);
               s.speed = 5;
               s.groundX = 0;
-              s.dino.x = 50;
-              s.dino.y = s.groundTop - s.dino.height;
-              s.dino.vy = 0;
-              s.obstacles = [
+              s.huevo.x = 50;
+              s.huevo.y = s.groundTop - s.huevo.height;
+              s.huevo.vy = 0;
+              (s.obstacles = [
                 {
-                  x: 600,
-                  y: s.groundTop - 50,
-                  width: 40,
-                  height: 50,
-                  type: "cactus",
+                  x: isMobile ? 200 : 600,
+                  y: 250,
+                  width: 70,
+                  height: 70,
+                  type: "maple",
                 },
-              ];
-              s.score = 0;
+              ]),
+                (s.score = 0);
             })();
           }}
         >
