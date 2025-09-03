@@ -6,6 +6,7 @@ export default function DinoGame() {
   const rafRef = useRef<number | null>(null);
 
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const scale = isMobile ? 0.7 : 1
 
   const [runningUI, setRunningUI] = useState(true);
 
@@ -48,24 +49,24 @@ export default function DinoGame() {
     ready: false,
     running: true,
     speed: 5,
-    groundTop: 310, // dibujamos el suelo desde 260 hacia abajo (alto 40)
+    groundTop: isMobile ? 250 : 300, // dibujamos el suelo desde 260 hacia abajo (alto 40)
     groundX: 0,
     huevo: {
       x: 50,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: 260, // 260 - 50
-      width: 65,
-      height: 80,
+      y: isMobile ? 220 : 260, // 260 - 50
+      width: 65 * scale,
+      height: 80 * scale,
       vy: 0,
-      gravity: 0.6,
+      gravity: isMobile ? 0.7 : 0.6,
       jumpForce: -15,
     },
     obstacles: [
       {
-        x: isMobile ? 200 : 600,
-        y: 250,
-        width: 70,
-        height: 70,
+        x: isMobile ? 300 : 600,
+        y: isMobile ? 210 : 250,
+        width: 70 * scale,
+        height: 70 * scale,
         type: "maple",
       },
     ],
@@ -96,26 +97,11 @@ export default function DinoGame() {
     }
   }
 
-  function restart() {
-    const s = stateRef.current;
-    s.running = true;
-    setRunningUI(true);
-    s.speed = 5;
-    s.groundX = 0;
-    s.huevo.x = 50;
-    s.huevo.y = s.groundTop - s.huevo.height; // 210
-    s.huevo.vy = 0;
-    s.obstacles = [
-      { x: 600, y: s.groundTop - 50, width: 70, height: 70, type: "maple" },
-    ];
-    s.score = 0;
-  }
-
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     canvas.width = isMobile ? window.innerWidth : 800;
-    canvas.height = 400;
+    canvas.height = isMobile ? 300 : 400;
 
     // Cargar imágenes y arrancar cuando estén listas
     const huevoImg = new Image();
@@ -210,24 +196,24 @@ export default function DinoGame() {
 
           // cambiar ancho según el tipo
           if (newType === "maple") {
-            obs.width = 70;
-            obs.height = 70;
-            obs.y = 250
+            obs.width = 70 * scale;
+            obs.height = 70 * scale;
+            obs.y = isMobile ? 210 : 250
           }
           if (newType === "microondas") {
-            obs.width = 80;
-            obs.height = 50;
-            obs.y = 270
+            obs.width = 80 * scale;
+            obs.height = 50 * scale;
+            obs.y = isMobile ? 215 : 270
           }
           if (newType === "sillon") {
-            obs.width = 120;
-            obs.height = 70;
-            obs.y = 250
+            obs.width = 120 * scale;
+            obs.height = 70 * scale;
+            obs.y = isMobile ? 210 : 250
           }
           if (newType === "tv") {
-            obs.width = 80;
-            obs.height = 65;
-            obs.y = 255
+            obs.width = 80 * scale;
+            obs.height = 65 * scale;
+            obs.y = isMobile ? 210 : 255
           }
 
           obs.x = canvas.width + 100 + Math.random() * 400;
@@ -300,12 +286,12 @@ export default function DinoGame() {
 
       // UI mínima: score
       ctx.font = "16px system-ui, sans-serif";
-      ctx.fillText(`Score: ${Math.floor(s.score)}`, canvas.width - 120, 24);
+      ctx.fillText(`Puntaje: ${Math.floor(s.score)}`, canvas.width - 120, 24);
 
       if (!s.running) {
         // Overlay simple de Game Over
-        ctx.font = "bold 28px system-ui, sans-serif";
-        ctx.fillText("Perdiste! Puntaje: " + Math.floor(s.score), 50, 80);
+        ctx.font = isMobile ? "bold 22px system-ui, sans-serif" : "bold 28px system-ui, sans-serif";
+        ctx.fillText("¡Juego terminado! Puntaje: " + Math.floor(s.score), 50, 80);
       }
     }
 
@@ -381,10 +367,10 @@ export default function DinoGame() {
               s.huevo.vy = 0;
               (s.obstacles = [
                 {
-                  x: isMobile ? 200 : 600,
-                  y: 250,
-                  width: 70,
-                  height: 70,
+                  x: isMobile ? 300 : 600,
+                  y: isMobile ? 210 : 250,
+                  width: 70 * scale,
+                  height: 70 * scale,
                   type: "maple",
                 },
               ]),
