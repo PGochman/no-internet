@@ -55,7 +55,7 @@ export default function DinoGame() {
     huevo: {
       x: isMobile ? 125 : 250,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: isMobile ? 250 - (80 * scale) : 220, // 260 - 50
+      y: isMobile ? 230 - (80 * scale) : 220, // 260 - 50
       width: 65 * scale,
       height: 80 * scale,
       vy: 0,
@@ -387,7 +387,7 @@ export default function DinoGame() {
                 setRunningUI(true);
                 s.speed = 5;
                 s.groundX = 0;
-                s.huevo.x = 250;
+                s.huevo.x = 125;
                 s.huevo.y = s.groundTop - s.huevo.height;
                 s.huevo.vy = 0;
                 (s.obstacles = [
