@@ -55,7 +55,7 @@ export default function DinoGame() {
     huevo: {
       x: isMobile ? 125 : 250,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: isMobile ? 160 : 220, // 260 - 50
+      y: isMobile ? 170 : 220, // 260 - 50
       width: 65 * scale,
       height: 80 * scale,
       vy: 0,
@@ -92,7 +92,7 @@ export default function DinoGame() {
     const s = stateRef.current;
     if (!s.running) return;
     // Solo salta si está en el suelo (tolerancia pequeña)
-    const onGround = Math.abs(s.huevo.y - (s.groundTop - s.huevo.height)) < 0.5;
+    const onGround = Math.abs(s.huevo.y - (170)) < 0.5;
     if (onGround) {
       s.huevo.vy = s.huevo.jumpForce;
     }
