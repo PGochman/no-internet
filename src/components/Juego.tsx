@@ -92,7 +92,8 @@ export default function DinoGame() {
     const s = stateRef.current;
     if (!s.running) return;
     // Solo salta si está en el suelo (tolerancia pequeña)
-    const onGround = Math.abs(s.huevo.y - (170)) < 0.5;
+    const onGround = Math.abs(s.huevo.y - (isMobile ? 170 : 220)) < 0.5;
+
     if (onGround) {
       s.huevo.vy = s.huevo.jumpForce;
     }
@@ -174,7 +175,7 @@ export default function DinoGame() {
       s.huevo.y += s.huevo.vy;
       s.huevo.vy += s.huevo.gravity;
       // Limitar al suelo
-      const groundY = s.groundTop - s.huevo.height; // 210
+      const groundY = isMobile ? 170 : 220; // 210
       if (s.huevo.y > groundY) {
         s.huevo.y = groundY;
         s.huevo.vy = 0;
@@ -387,7 +388,7 @@ export default function DinoGame() {
                 setRunningUI(true);
                 s.speed = 5;
                 s.groundX = 0;
-                s.huevo.x = 125;
+                s.huevo.x = isMobile ? 125 : 250,
                 s.huevo.y = s.groundTop - s.huevo.height;
                 s.huevo.vy = 0;
                 (s.obstacles = [
