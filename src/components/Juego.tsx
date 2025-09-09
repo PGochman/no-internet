@@ -6,9 +6,10 @@ export default function DinoGame() {
   const rafRef = useRef<number | null>(null);
 
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-  const scale = isMobile ? 0.7 : 1
+  const scale = isMobile ? 0.7 : 1;
 
   const [runningUI, setRunningUI] = useState(true);
+  const [started, setStarted] = useState(false);
 
   type Obstacle = {
     x: number;
@@ -52,9 +53,9 @@ export default function DinoGame() {
     groundTop: isMobile ? 250 : 300, // dibujamos el suelo desde 260 hacia abajo (alto 40)
     groundX: 0,
     huevo: {
-      x: 50,
+      x: 250,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: isMobile ? 220 : 260, // 260 - 50
+      y: isMobile ? 250 - (80 * scale) : 220, // 260 - 50
       width: 65 * scale,
       height: 80 * scale,
       vy: 0,
@@ -64,7 +65,7 @@ export default function DinoGame() {
     obstacles: [
       {
         x: isMobile ? 300 : 600,
-        y: isMobile ? 210 : 250,
+        y: isMobile ? 70 : 110,
         width: 70 * scale,
         height: 70 * scale,
         type: "maple",
@@ -139,7 +140,7 @@ export default function DinoGame() {
     let huevoToggle = true;
     huevoImg.src = "/sprites/huevo1.png";
     setInterval(() => {
-      if (runningUI) {
+      if (runningUI && started && stateRef.current.running) {
         huevoImg.src = huevoToggle
           ? "/sprites/huevo2.png"
           : "/sprites/huevo1.png";
@@ -164,6 +165,8 @@ export default function DinoGame() {
     canvas.addEventListener("pointerdown", onPointer);
 
     function update() {
+      if (!started) return;
+
       const s = stateRef.current;
       if (!s.running || !s.ready) return;
 
@@ -198,22 +201,22 @@ export default function DinoGame() {
           if (newType === "maple") {
             obs.width = 70 * scale;
             obs.height = 70 * scale;
-            obs.y = isMobile ? 210 : 250
+            obs.y = isMobile ? 70 : 110;
           }
           if (newType === "microondas") {
             obs.width = 80 * scale;
             obs.height = 50 * scale;
-            obs.y = isMobile ? 215 : 270
+            obs.y = isMobile ? 200 : 255;
           }
           if (newType === "sillon") {
             obs.width = 120 * scale;
             obs.height = 70 * scale;
-            obs.y = isMobile ? 210 : 250
+            obs.y = isMobile ? 200 : 240;
           }
           if (newType === "tv") {
             obs.width = 80 * scale;
             obs.height = 65 * scale;
-            obs.y = isMobile ? 210 : 255
+            obs.y = isMobile ? 200 : 240;
           }
 
           obs.x = canvas.width + 100 + Math.random() * 400;
@@ -241,7 +244,6 @@ export default function DinoGame() {
         s.speed = Math.min(s.speed + 0.5, 20);
         s.lastSpeedUp = s.score; // guardar el último momento de aceleración
       }
-      console.log(s.speed)
     }
 
     function draw() {
@@ -289,9 +291,31 @@ export default function DinoGame() {
       ctx.fillText(`Puntaje: ${Math.floor(s.score)}`, canvas.width - 120, 24);
 
       if (!s.running) {
+        // Guardar puntaje máximo en localStorage
+        const currentScore = Math.floor(s.score);
+        const maxScore = Math.max(
+          currentScore,
+          Number(localStorage.getItem("maxScore") || 0)
+        );
+        localStorage.setItem("maxScore", String(maxScore));
+
         // Overlay simple de Game Over
-        ctx.font = isMobile ? "bold 22px system-ui, sans-serif" : "bold 28px system-ui, sans-serif";
-        ctx.fillText("¡Juego terminado! Puntaje: " + Math.floor(s.score), 50, 80);
+        ctx.font = isMobile
+          ? "bold 22px system-ui, sans-serif"
+          : "bold 28px system-ui, sans-serif";
+        ctx.fillText(
+          "¡Juego terminado! Puntaje: " + currentScore,
+          50,
+          80
+        );
+        ctx.font = isMobile
+          ? "bold 18px system-ui, sans-serif"
+          : "bold 22px system-ui, sans-serif";
+        ctx.fillText(
+          "Puntaje máximo: " + maxScore,
+          50,
+          110
+        );
       }
     }
 
@@ -306,79 +330,90 @@ export default function DinoGame() {
       window.removeEventListener("keydown", onKey);
       canvas.removeEventListener("pointerdown", onPointer);
     };
-  }, []);
+  }, [started]);
 
   return (
-    <div className={style.container}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          border: "1px solid #000",
-          touchAction: "manipulation",
-          background: "turquoise",
-        }}
-      />
-      {runningUI ? (
-        <p className={style.instrucciones}>
-          {isMobile ? "Pulsar" : "Clickear o apretar espacio"} sobre el juego
-          para saltar
-        </p>
-      ) : (
-        <button
-          style={{ display: "none" }}
-          onClick={() => {
-            stateRef.current.running = false; /* ya está en false */
-            stateRef.current.ready ? undefined : undefined;
-            setRunningUI(false);
+    <div>
+      <div className={style.container}>
+        <canvas
+          ref={canvasRef}
+          style={{
+            border: "1px solid #000",
+            touchAction: "manipulation",
+            background: "turquoise",
           }}
         />
-      )}
-      {!runningUI && (
+        {runningUI ? (
+          <p className={style.instrucciones}>
+            {isMobile ? "Pulsar" : "Clickear o apretar espacio"} sobre el juego
+            para saltar
+          </p>
+        ) : (
+          <button
+            style={{ display: "none" }}
+            onClick={() => {
+              stateRef.current.running = false; /* ya está en false */
+              stateRef.current.ready ? undefined : undefined;
+              setRunningUI(false);
+            }}
+          />
+        )}
+        {!runningUI && (
+          <button
+            style={{ display: "none" }}
+            onClick={() => {
+              const s = stateRef.current;
+              s.running = false;
+            }}
+          />
+        )}
+        {!runningUI && (
+          <button
+            style={{ width: canvasRef.current?.width || 802 }}
+            className={style.button}
+            onClick={() => {
+              /* botón visible para reintentar desde la UI */ (function () {
+                const s = stateRef.current;
+                if (!s.running) {
+                  const canvas = canvasRef.current!;
+                  const ctx = canvas.getContext("2d")!; // Limpio pantalla opcional
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+              })();
+              // Llamamos al reinicio formal
+              (function () {
+                const s = stateRef.current;
+                s.running = true;
+                setRunningUI(true);
+                s.speed = 5;
+                s.groundX = 0;
+                s.huevo.x = 250;
+                s.huevo.y = s.groundTop - s.huevo.height;
+                s.huevo.vy = 0;
+                (s.obstacles = [
+                  {
+                    x: isMobile ? 300 : 600,
+                    y: isMobile ? 70 : 110,
+                    width: 70 * scale,
+                    height: 70 * scale,
+                    type: "maple",
+                  },
+                ]),
+                  (s.score = 0);
+              })();
+            }}
+          >
+            Reintentar
+          </button>
+        )}
+      </div>
+      {!started && (
         <button
-          style={{ display: "none" }}
-          onClick={() => {
-            const s = stateRef.current;
-            s.running = false;
-          }}
-        />
-      )}
-      {!runningUI && (
-        <button
-          style={{ width: canvasRef.current?.width || 802 }}
           className={style.button}
-          onClick={() => {
-            /* botón visible para reintentar desde la UI */ (function () {
-              const s = stateRef.current;
-              if (!s.running) {
-                const canvas = canvasRef.current!;
-                const ctx = canvas.getContext("2d")!; // Limpio pantalla opcional
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-              }
-            })();
-            // Llamamos al reinicio formal
-            (function () {
-              const s = stateRef.current;
-              s.running = true;
-              setRunningUI(true);
-              s.speed = 5;
-              s.groundX = 0;
-              s.huevo.x = 50;
-              s.huevo.y = s.groundTop - s.huevo.height;
-              s.huevo.vy = 0;
-              (s.obstacles = [
-                {
-                  x: isMobile ? 300 : 600,
-                  y: isMobile ? 210 : 250,
-                  width: 70 * scale,
-                  height: 70 * scale,
-                  type: "maple",
-                },
-              ]),
-                (s.score = 0);
-            })();
-          }}
+          style={{ width: isMobile ? "100%" : 300, marginBottom: 20 }}
+          onClick={() => setStarted(true)}
         >
-          Reintentar
+          Iniciar
         </button>
       )}
     </div>

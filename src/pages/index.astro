@@ -1,22 +1,25 @@
 ---
-import Juego from '../components/Juego.tsx';
-import Layout from '../layouts/Layout.astro';
+import Juego from "../components/Juego.tsx";
+import Player from "../components/Player";
+import Layout from "../layouts/Layout.astro";
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<div class="juego">
-		<Juego client:only="react"/>
-	</div>
+  <Player client:only="react" />
+
+  <div class="juego">
+    <Juego client:only="react" />
+  </div>
 </Layout>
 
 <style>
-	.juego{
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-	}
+  .juego {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+	margin-top: 20px;
+  }
 </style>
