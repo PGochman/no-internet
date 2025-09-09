@@ -55,7 +55,7 @@ export default function DinoGame() {
     huevo: {
       x: isMobile ? 125 : 250,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
-      y: isMobile ? 230 - (80 * scale) : 220, // 260 - 50
+      y: isMobile ? 160 : 220, // 260 - 50
       width: 65 * scale,
       height: 80 * scale,
       vy: 0,
