@@ -53,7 +53,7 @@ export default function DinoGame() {
     groundTop: isMobile ? 250 : 300, // dibujamos el suelo desde 260 hacia abajo (alto 40)
     groundX: 0,
     huevo: {
-      x: 250,
+      x: isMobile ? 125 : 250,
       // y inicial = top del dino apoyado en el suelo: groundTop - height
       y: isMobile ? 250 - (80 * scale) : 220, // 260 - 50
       width: 65 * scale,
@@ -206,17 +206,17 @@ export default function DinoGame() {
           if (newType === "microondas") {
             obs.width = 80 * scale;
             obs.height = 50 * scale;
-            obs.y = isMobile ? 200 : 255;
+            obs.y = isMobile ? 180 : 255;
           }
           if (newType === "sillon") {
             obs.width = 120 * scale;
             obs.height = 70 * scale;
-            obs.y = isMobile ? 200 : 240;
+            obs.y = isMobile ? 180 : 240;
           }
           if (newType === "tv") {
             obs.width = 80 * scale;
             obs.height = 65 * scale;
-            obs.y = isMobile ? 200 : 240;
+            obs.y = isMobile ? 180 : 240;
           }
 
           obs.x = canvas.width + 100 + Math.random() * 400;
