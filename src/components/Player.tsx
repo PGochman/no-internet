@@ -10,7 +10,7 @@ export default function Player() {
     <div style={{ display: "flex", justifyContent: "center" }}>
       <iframe
         data-testid="embed-iframe"
-        style={{ borderRadius: isMobile ? 0 : 12 }}
+        style={{ borderRadius: isMobile ? 0 : 12, border: "none" }}
         src="https://open.spotify.com/embed/track/66ehTkoVaEQlX5GyieRCsd?utm_source=generator&theme=0"
         width={width}
         height={height}

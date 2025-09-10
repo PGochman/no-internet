@@ -220,7 +220,7 @@ export default function DinoGame() {
             obs.y = isMobile ? 180 : 240;
           }
 
-          obs.x = canvas.width + 100 + Math.random() * 400;
+          obs.x = canvas.width + 100 + Math.random() * 200;
         }
       }
 
@@ -242,7 +242,7 @@ export default function DinoGame() {
       // Aumentar score / dificultad leve
       s.score += 0.5;
       if (s.score - s.lastSpeedUp >= 100) {
-        s.speed = Math.min(s.speed + 0.5, 20);
+        s.speed = Math.min(s.speed + 0.4, 22);
         s.lastSpeedUp = s.score; // guardar el último momento de aceleración
       }
     }
@@ -288,6 +288,7 @@ export default function DinoGame() {
       }
 
       // UI mínima: score
+      ctx.fillStyle = "#000";
       ctx.font = "16px system-ui, sans-serif";
       ctx.fillText(`Puntaje: ${Math.floor(s.score)}`, canvas.width - 120, 24);
 
@@ -301,22 +302,22 @@ export default function DinoGame() {
         localStorage.setItem("maxScore", String(maxScore));
 
         // Overlay simple de Game Over
+        // Fondo negro translúcido
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
         ctx.font = isMobile
           ? "bold 22px system-ui, sans-serif"
           : "bold 28px system-ui, sans-serif";
-        ctx.fillText(
-          "¡Juego terminado! Puntaje: " + currentScore,
-          50,
-          80
-        );
+        ctx.fillStyle = "#fff";
+        ctx.fillText("¡Juego terminado! Puntaje: " + currentScore, 50, 80);
         ctx.font = isMobile
           ? "bold 18px system-ui, sans-serif"
           : "bold 22px system-ui, sans-serif";
-        ctx.fillText(
-          "Puntaje máximo: " + maxScore,
-          50,
-          110
-        );
+        ctx.fillText("Puntaje máximo: " + maxScore, 50, 110);
       }
     }
 
@@ -388,8 +389,8 @@ export default function DinoGame() {
                 setRunningUI(true);
                 s.speed = 5;
                 s.groundX = 0;
-                s.huevo.x = isMobile ? 125 : 250,
-                s.huevo.y = s.groundTop - s.huevo.height;
+                (s.huevo.x = isMobile ? 125 : 250),
+                  (s.huevo.y = s.groundTop - s.huevo.height);
                 s.huevo.vy = 0;
                 (s.obstacles = [
                   {

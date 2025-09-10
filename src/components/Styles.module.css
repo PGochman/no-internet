@@ -5,6 +5,7 @@
     border: none;
     outline: none;
     border-radius: 6px;
+    cursor: pointer;
 }
 
 .container{
