@@ -11,7 +11,7 @@ export default function Player() {
       <iframe
         data-testid="embed-iframe"
         style={{ borderRadius: isMobile ? 0 : 12, border: "none" }}
-        src="https://open.spotify.com/embed/track/66ehTkoVaEQlX5GyieRCsd?utm_source=generator&theme=0"
+        src="https://open.spotify.com/embed/track/0JgXOWxvQ3fI5cBsstwl9U?utm_source=generator&theme=0"
         width={width}
         height={height}
         allow=" clipboard-write; encrypted-media; fullscreen; picture-in-picture"
